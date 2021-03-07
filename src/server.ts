@@ -20,8 +20,6 @@ app.use((req, res, next) => {
   next()
 })
 
-app.use(express.urlencoded())
-
 app.get('/download', (req, res) => {
   let {url, format} = req.query
   let urlStr = JSON.stringify(url)
