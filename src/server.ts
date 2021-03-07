@@ -22,7 +22,7 @@ app.use((req, res, next) => {
 })
 
 app.get('/download', (req, res) => {
-  let { url, format } = req.query
+  const { url, format } = req.query
   const urlStr = JSON.stringify(url)
   if (!format) {
     exec(`youtube-dl -F ${urlStr}`, (error, stdout, stderr) => {
@@ -62,8 +62,8 @@ app.get('/download', (req, res) => {
         output.push([parts[0], parts[1], rest])
       }
       const format = JSON.stringify(output)
-      url = escape(url as string)
-      res.redirect(`/index.html?url=${url}&format=${format}`)
+      const urlStr = escape(url as string)
+      res.redirect(`/index.html?url=${urlStr}&format=${format}`)
     })
     return
   }
