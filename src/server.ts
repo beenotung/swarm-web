@@ -2,6 +2,9 @@ import mkdirp from 'mkdirp'
 import path from 'path'
 import express from 'express'
 import {exec} from 'child_process'
+import dotenv from 'dotenv'
+
+dotenv.config()
 
 let downloadDir = path.join('data', 'youtube-dl')
 mkdirp.sync(downloadDir)
@@ -94,7 +97,7 @@ app.get('/download', (req, res) => {
 })
 
 
-let port = 8100
+let port = process.env.PORT || 8100
 app.listen(port, () => {
   console.log(`listening on http://localhost:${port}`)
 })
