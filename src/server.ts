@@ -1,12 +1,15 @@
+import { DAY } from '@beenotung/tslib/time'
 import { exec } from 'child_process'
 import dotenv from 'dotenv'
 import express from 'express'
+import { unlink } from 'fs'
 import mkdirp from 'mkdirp'
 import path from 'path'
 dotenv.config()
 
 const port = process.env.PORT || 8100
 const downloadDir = path.join('data', 'youtube-dl')
+const cacheInterval = DAY
 
 mkdirp.sync(downloadDir)
 
@@ -21,6 +24,8 @@ app.use((req, res, next) => {
   next()
 })
 
+// file -> timer
+const timers: Record<string, NodeJS.Timeout> = {}
 app.get('/download', (req, res) => {
   const { url, format } = req.query
   const urlStr = JSON.stringify(url)
@@ -95,6 +100,18 @@ app.get('/download', (req, res) => {
         : line.replace('Destination: ', '')
       ).trim()
       res.redirect('/file/' + file)
+      if (file in timers) {
+        clearTimeout(timers[file])
+      }
+      timers[file] = setTimeout(
+        () =>
+          unlink(path.join(downloadDir, file), err => {
+            if (err) {
+              console.log(err)
+            }
+          }),
+        cacheInterval,
+      )
     },
   )
 })
