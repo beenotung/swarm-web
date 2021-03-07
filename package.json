@@ -13,6 +13,9 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "dev": "ts-node-dev src/server.ts",
+    "pm2": "pm2 restart swarm-web || pm2 start --name swarm-web dist/server.js",
+    "preserve": "npm run build",
+    "serve": "npm run pm2",
     "prepare": "rimraf node_modules/@beenotung/tslib/index.*",
     "clean": "rimraf dist",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
