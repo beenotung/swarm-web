@@ -84,7 +84,16 @@
       }
       let format = params.get('format')
       if (format) {
-        let rows = JSON.parse(format)
+        // let rows = JSON.parse(format)
+        let rows = format
+          .replace(/-E/g, ')')
+          .replace(/-O/g, '(')
+          .replace(/-c/g, ',')
+          .replace(/-s/g, ' ')
+          .replace(/--/g, '-')
+          .split('-n')
+          .filter(part => part.length > 0)
+          .map(parts => parts.split('-t'))
         let table = document.querySelector('#formats-container')
         let html = /* html */ `<thead>
             <tr>

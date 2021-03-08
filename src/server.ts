@@ -48,7 +48,7 @@ app.get('/download', (req, res) => {
         res.status(502).json({ error: 'failed to find format code', stdout })
         return
       }
-      const output = []
+      let format = ''
       for (let i = offset + 1; i < lines.length; i++) {
         const line = lines[i]
         const parts = line
@@ -64,11 +64,24 @@ app.get('/download', (req, res) => {
         //   'extension': parts[1],
         //   'resolution note': rest,
         // })
-        output.push([parts[0], parts[1], rest])
+        // output.push([parts[0], parts[1], rest])
+        parts[2] = rest
+        format +=
+          parts
+            .map(part =>
+              part
+                .replace(/-/g, '--')
+                .replace(/ /g, '-s')
+                .replace(/,/g, '-c')
+                .replace(/\(/g, '-O')
+                .replace(/\)/g, '-E'),
+            )
+            .join('-t') + '-n'
       }
-      const format = JSON.stringify(output)
+      const formatStr = escape(format)
+      console.log({ format, formatStr })
       const urlStr = escape(url as string)
-      res.redirect(`/index.html?url=${urlStr}&format=${format}`)
+      res.redirect(`/index.html?url=${urlStr}&format=${formatStr}`)
     })
     return
   }
