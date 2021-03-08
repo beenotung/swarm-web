@@ -68,7 +68,7 @@
       <input type="url" name="url" id="url" />
       <label for="format">Format</label>
       <input type="text" name="format" id="format" placeholder="Format" />
-      <div class="submit-container">
+      <div class="submit-container" hidden>
         <input type="submit" value="Submit" />
       </div>
       <table id="formats-container"></table>
@@ -120,9 +120,9 @@
             }
           })
         })
-      }
-      function selectFormat(tr) {
-        console.log(tr)
+        document
+          .querySelectorAll('.submit-container')
+          .forEach(e => e.removeAttribute('hidden'))
       }
     </script>
   </body>
