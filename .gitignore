@@ -1,12 +1,36 @@
-data/
-.idea/
-node_modules/
-package-lock.json
+# npm
+node_modules
 pnpm-lock.yaml
-pnpm-debug.log
+package-lock.json
+yarn.lock
+
+# IDE
+.idea/
+
+# built files
+build/
 dist/
-.cache/
-*.tgz
+
+# lighthouse report
+localhost_*.report.html
+
+# config
 .env
-.nyc_output
-coverage/
+.open
+*.cert
+*.key
+*.pem
+
+# MacOS
+.DS_Store
+
+# live server
+server.pid
+
+# debug
+result.json
+result-*.json
+result-*.txt
+
+# data
+downloads/
