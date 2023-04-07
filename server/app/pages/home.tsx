@@ -424,12 +424,14 @@ function DownloadVideo(attrs: {
         <p>loading video...</p>
       ) : (
         <>
-          <p>Video ready.</p>
+          <p>Video ready: {filename}</p>
           <p>
-            Download{' '}
             <a href={'/downloads/' + filename} download={filename}>
-              {filename}
+              Download
             </a>
+          </p>
+          <p>
+            <a href={'/downloads/' + filename}>View</a>
           </p>
         </>
       )}
