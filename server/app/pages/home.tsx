@@ -147,7 +147,6 @@ function SearchResult(
     <div id="results">
       {searchResultStyle}
       <h2>Search Result of "{attrs.keyword}"</h2>
-      <p>Number of results: {videos.length}</p>
       <div class="video-list">
         {mapArray(videos, video => {
           let thumbnail = video.thumbnail.thumbnails[0]
