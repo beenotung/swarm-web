@@ -375,6 +375,15 @@ let resolveDownloadVideo = async (
       ['-f', format_id, 'https://www.youtube.com/watch?v=' + video_id],
       { cwd: downloadDir },
     )
+    child.stdout.on('data', chunk => {
+      let line = chunk.toString().trim()
+      if (!line.startsWith('[download]')) return
+      let message: ServerMessage = ['update-text', '#downloadProgress', line]
+      sessions.forEach(session => {
+        if (session.url !== currentUrl) return
+        session.ws.send(message)
+      })
+    })
     child.on('exit', async exit_code => {
       console.log('download ended:', { video_id, exit_code })
       if (exit_code !== 0) return
@@ -415,7 +424,10 @@ function DownloadVideo(attrs: {
       <h2>{detail.title}</h2>
       <p>{detail.description}</p>
       {!filename ? (
-        <p>loading video...</p>
+        <>
+          <p>loading video...</p>
+          <p id="downloadProgress"></p>
+        </>
       ) : (
         <>
           <p>Video ready: {filename}</p>
