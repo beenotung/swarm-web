@@ -180,7 +180,6 @@ let resolveMoreResult = async (
 ): Promise<StaticPageRoute> => {
   let id = +context.routerMatch?.params?.id
   let cache = nextPageCache.get(id)
-  console.log({ id, cache: !!cache })
   if (!cache) {
     return {
       title: title('Search Videos'),
@@ -265,7 +264,6 @@ let resolveVideo = async (
   let startIdx = lines.findIndex(line =>
     line.startsWith('------------------------'),
   )
-  // console.log({startIdx})
   let formats = lines
     .slice(startIdx + 1)
     .filter(line => line.length > 0 && !line.includes(' only'))
@@ -418,7 +416,6 @@ function DownloadVideo(attrs: {
   if (filename) {
     startDeleteTimer(filename)
   }
-  console.log('attrs:', attrs)
   return (
     <div id="downloadPage">
       <h2>{detail.title}</h2>
