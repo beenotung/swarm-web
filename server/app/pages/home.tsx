@@ -384,16 +384,11 @@ let resolveDownloadVideo = async (
       if (!filename) return
 
       let node = DownloadVideo({ video_id, detail, filename })
+      let element = nodeToVElementOptimized(node, context)
+      let message: ServerMessage = ['update-in', '#downloadPage', element]
 
       sessions.forEach(session => {
         if (session.url !== currentUrl) return
-        let element = nodeToVElementOptimized(node, {
-          type: 'ws',
-          ws: session.ws,
-          url: session.url,
-          session,
-        })
-        let message: ServerMessage = ['update-in', '#downloadPage', element]
         session.ws.send(message)
       })
     })
