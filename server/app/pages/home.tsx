@@ -44,19 +44,6 @@ let searchVideos = (
   </div>
 )
 
-function submit() {
-  youtubeAPI
-    .GetListByKeyword('flower', undefined, undefined, [{ type: 'video' }])
-    .then(res => {
-      console.log('res:', res)
-      let type = genTsType(res, { format: true })
-      console.log('type:', type)
-    })
-    .catch(err => {
-      console.log('err:', err)
-    })
-}
-
 async function callAPI<T>(cacheFile: string, fn: () => T): Promise<T> {
   if (config.development && existsSync(cacheFile)) {
     let text = readFileSync(cacheFile).toString()
