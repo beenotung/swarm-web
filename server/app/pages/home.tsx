@@ -273,7 +273,9 @@ let resolveVideo = async (
     .slice(startIdx + 1)
     .filter(line => line.length > 0 && !line.includes(' only'))
     .map((line): Format => {
-      let parts = line.split(' ').filter(part => part.length > 0)
+      let parts = line
+        .split(' ')
+        .filter(part => part.length > 0 && part != '~' && part != '≈')
       let id = parts[0]
       let ext = parts[1]
       let resolution = parts[2]
