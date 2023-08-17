@@ -123,6 +123,9 @@ let searchResultStyle = Style(/* css */ `
   max-height: 100%;
   object-fit: contain;
 }
+#results .video-id {
+  text-align: end;
+}
 `)
 function SearchResult(
   attrs: {
@@ -150,8 +153,10 @@ function SearchResult(
       <div class="video-list">
         {mapArray(videos, video => {
           let thumbnail = video.thumbnail.thumbnails[0]
+          let duration = video.length.simpleText
           return (
             <a class="video-item" href={'/video/' + video.id}>
+              <div class="video-id">{video.id}</div>
               <div className="video-thumbnail">
                 {thumbnail ? (
                   <img
@@ -163,6 +168,7 @@ function SearchResult(
                 ) : null}
               </div>
               <div className="video-title">{video.title}</div>
+              <div className="video-duration">{duration}</div>
             </a>
           )
         })}
