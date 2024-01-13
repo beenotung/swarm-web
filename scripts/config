@@ -1,4 +1,4 @@
 user=node
 host=swarm-web.cc
-root_dir=/home/node/workspace/github.com/beenotung/swarm-web
+root_dir=/home/node/swarm-web
 pm2_name="swarm-web"
