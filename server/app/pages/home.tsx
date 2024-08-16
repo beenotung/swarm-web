@@ -234,6 +234,17 @@ async function casualGetVideoDetail(
   return detail
 }
 
+// url -> output text
+let formatCache = new Map<string, string>()
+function cachedQueryFormat(url: string): string {
+  let output = formatCache.get(url)
+  if (output) return output
+  let result = spawnSync('yt-dlp', ['-F', url])
+  output = result.stdout.toString()
+  formatCache.set(url, output)
+  return output
+}
+
 let resolveVideo = async (
   context: DynamicContext,
 ): Promise<StaticPageRoute> => {
@@ -252,12 +263,7 @@ let resolveVideo = async (
     }
   }
   let output = callTextAPI('result-format.txt', () => {
-    let result = spawnSync('yt-dlp', [
-      '-F',
-      'https://www.youtube.com/watch?v=' + video_id,
-    ])
-    let output = result.stdout.toString()
-    return output
+    return cachedQueryFormat('https://www.youtube.com/watch?v=' + video_id)
   })
   let lines = output.split('\n')
   let startIdx = lines.findIndex(line =>
