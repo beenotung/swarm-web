@@ -347,6 +347,10 @@ function parseFormats(text: string): Format[] {
   let startIdx = lines.findIndex(line =>
     line.startsWith('------------------------'),
   )
+  if (startIdx == -1) {
+    // "Downloading API JSON"
+    return []
+  }
   let formats = lines
     .slice(startIdx + 1)
     .filter(line => line.length > 0)
@@ -567,6 +571,14 @@ let resolveDownloadVideo = async (
   let files = await pfs.readdir(downloadDir)
   let filename = files.find(f => f.includes(video_id))
 
+  function updateProgress(line: string) {
+    let message: ServerMessage = ['update-text', '#downloadProgress', line]
+    sessions.forEach(session => {
+      if (session.url !== currentUrl) return
+      session.ws.send(message)
+    })
+  }
+
   if (!filename) {
     let child = spawn(
       'yt-dlp',
@@ -576,19 +588,32 @@ let resolveDownloadVideo = async (
     child.stdout.on('data', chunk => {
       let line = chunk.toString().trim()
       if (!line.startsWith('[download]')) return
-      let message: ServerMessage = ['update-text', '#downloadProgress', line]
-      sessions.forEach(session => {
-        if (session.url !== currentUrl) return
-        session.ws.send(message)
-      })
+      updateProgress(line)
+    })
+    let errorMessage = ''
+    child.stderr.on('data', chunk => {
+      errorMessage += chunk
     })
     child.on('exit', async exit_code => {
       console.log('download ended:', { video_id, exit_code })
-      if (exit_code !== 0) return
+      if (exit_code !== 0) {
+        updateProgress(
+          'Error: failed to download, exit_code: ' +
+            exit_code +
+            ', detail: ' +
+            errorMessage,
+        )
+        return
+      }
 
       let files = await pfs.readdir(downloadDir)
       let filename = files.find(f => f.includes(video_id))
-      if (!filename) return
+      if (!filename) {
+        updateProgress(
+          'Error: file not found, filename: ' + JSON.stringify(filename),
+        )
+        return
+      }
 
       let node = DownloadVideo({ video_id, detail, filename })
       let element = nodeToVElementOptimized(node, context)
