@@ -309,10 +309,22 @@ let resolveVideo = async (
       node: DownloadVideo({ video_id, detail, filename }),
     }
   }
+  let url = 'https://www.youtube.com/watch?v=' + video_id
   let output = callTextAPI('result-format.txt', () => {
-    return cachedQueryFormat('https://www.youtube.com/watch?v=' + video_id)
+    return cachedQueryFormat(url)
   })
-  let formats = parseFormats(output)
+  let formats: Format[] = []
+  try {
+    formats = parseFormats(output)
+  } catch (error) {
+    console.error('failed to parse format')
+    console.error(error)
+    console.error('format text:')
+    console.error(output)
+  }
+  if (formats.length == 0) {
+    formatCache.delete(url)
+  }
   return {
     title: title('New Video: ' + video_title),
     description: 'this video is not cached yet',
@@ -345,6 +357,8 @@ function parseFormats(text: string): Format[] {
         .split('|')
         .map(part => part.split(' ').filter(part => part.length > 0))
         .filter(parts => parts.length > 0)
+      console.log('line:', line)
+      console.log('parts:', parts)
       let id = parts[0][0]
       let ext = parts[0][1]
       let resolution = parts[0][2]
@@ -422,6 +436,9 @@ function NewVideoPage(attrs: {
           ))}
         </tbody>
       </table>
+      {formats.length == 0 ? (
+        <p>No formats are available at the moment.</p>
+      ) : null}
     </div>
   )
 }
