@@ -318,6 +318,12 @@ function NewVideoPage(attrs: {
 }) {
   let { video_id, detail, formats } = attrs
 
+  let is_ip_ban = false
+  if (formats.every(format => format.resolution == 'Downloading')) {
+    formats = []
+    is_ip_ban = true
+  }
+
   return (
     <div id="videoPage">
       {videoPageStyle}
@@ -350,6 +356,12 @@ function NewVideoPage(attrs: {
           ))}
         </tbody>
       </table>
+      {is_ip_ban ? (
+        <p>
+          The server is probably IP-banned. Please deploy it with a residential
+          IP.
+        </p>
+      ) : null}
     </div>
   )
 }
