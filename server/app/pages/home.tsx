@@ -265,32 +265,7 @@ let resolveVideo = async (
   let output = callTextAPI('result-format.txt', () => {
     return cachedQueryFormat('https://www.youtube.com/watch?v=' + video_id)
   })
-  let lines = output.split('\n')
-  let startIdx = lines.findIndex(line =>
-    line.startsWith('------------------------'),
-  )
-  let formats = lines
-    .slice(startIdx + 1)
-    .filter(line => line.length > 0 && !line.includes(' only'))
-    .map((line): Format => {
-      let parts = line.split(' ').filter(part => part.length > 0)
-      let id = parts[0]
-      let ext = parts[1]
-      let resolution = parts[2]
-      let fps = parts[3]
-      let idx = 5
-      let file_size = parts[idx]
-      if (file_size === '|') {
-        idx++
-        file_size = parts[idx]
-      }
-      if (file_size === '~') {
-        idx++
-        file_size = parts[idx]
-      }
-      return { id, ext, resolution, fps, file_size }
-    })
-    .filter(format => format.file_size && format.ext !== 'mhtml')
+  let formats = parseFormats(output)
   return {
     title: title('New Video: ' + video_title),
     description: 'this video is not cached yet',
@@ -304,6 +279,47 @@ type Format = {
   resolution: string
   fps: string
   file_size: string
+  remark: string
+}
+
+function parseFormats(text: string): Format[] {
+  let lines = text.split('\n')
+  let startIdx = lines.findIndex(line =>
+    line.startsWith('------------------------'),
+  )
+  let formats = lines
+    .slice(startIdx + 1)
+    .filter(line => line.length > 0)
+    .map((line): Format => {
+      line = line
+        .replace('audio only', 'audio_only')
+        .replace('video only', 'video_only')
+      let parts = line
+        .split('|')
+        .map(part => part.split(' ').filter(part => part.length > 0))
+        .filter(parts => parts.length > 0)
+      let id = parts[0][0]
+      let ext = parts[0][1]
+      let resolution = parts[0][2]
+      if (resolution == 'audio_only') {
+        resolution = ''
+      }
+      let fps = parts[0][3]
+      let file_size = parts[1][0]
+      if (file_size == '~' || file_size == '≈') {
+        file_size += parts[1][1]
+      } else if (file_size == 'm3u8') {
+        file_size = '(streaming)'
+      }
+      let remark = line.includes('audio_only')
+        ? 'audio only'
+        : line.includes('video_only')
+        ? 'video only'
+        : ''
+      return { id, ext, resolution, fps, file_size, remark }
+    })
+    .filter(format => format.file_size && format.ext !== 'mhtml')
+  return formats
 }
 
 let videoPageStyle = Style(/* css */ `
@@ -324,12 +340,6 @@ function NewVideoPage(attrs: {
 }) {
   let { video_id, detail, formats } = attrs
 
-  let is_ip_ban = false
-  if (formats.every(format => format.resolution == 'Downloading')) {
-    formats = []
-    is_ip_ban = true
-  }
-
   return (
     <div id="videoPage">
       {videoPageStyle}
@@ -341,8 +351,10 @@ function NewVideoPage(attrs: {
             <th>id</th>
             <th>ext</th>
             <th>resolution</th>
-            <th>fps</th>
+            <th>fps/ch</th>
             <th>file size</th>
+            <th>remark</th>
+            <th>action</th>
           </tr>
         </thead>
         <tbody>
@@ -353,6 +365,7 @@ function NewVideoPage(attrs: {
               <td>{format.resolution}</td>
               <td>{format.fps}</td>
               <td>{format.file_size}</td>
+              <td>{format.remark}</td>
               <td>
                 <Link href={'/download/' + video_id + '/' + format.id}>
                   <button>Download</button>
@@ -362,12 +375,6 @@ function NewVideoPage(attrs: {
           ))}
         </tbody>
       </table>
-      {is_ip_ban ? (
-        <p>
-          The server is probably IP-banned. Please deploy it with a residential
-          IP.
-        </p>
-      ) : null}
     </div>
   )
 }
