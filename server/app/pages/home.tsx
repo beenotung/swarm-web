@@ -72,7 +72,7 @@ let searchVideos = (
         <hr />
       </div>
       <label class="field">
-        Url:
+        Url / ID:
         <input type="text" name="url" />
       </label>
       <hr />
