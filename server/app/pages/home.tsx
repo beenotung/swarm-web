@@ -324,6 +324,7 @@ let resolveVideo = async (
   }
   if (formats.length == 0) {
     formatCache.delete(url)
+    formats = fallbackFormats
   }
   return {
     title: title('New Video: ' + video_title),
@@ -357,8 +358,6 @@ function parseFormats(text: string): Format[] {
         .split('|')
         .map(part => part.split(' ').filter(part => part.length > 0))
         .filter(parts => parts.length > 0)
-      console.log('line:', line)
-      console.log('parts:', parts)
       let id = parts[0][0]
       let ext = parts[0][1]
       let resolution = parts[0][2]
@@ -383,6 +382,113 @@ function parseFormats(text: string): Format[] {
   return formats
 }
 
+let fallbackFormats: Format[] = [
+  {
+    id: '233',
+    ext: 'mp4',
+    resolution: '',
+    fps: '',
+    file_size: '(streaming)',
+    remark: 'audio only',
+  },
+  {
+    id: '234',
+    ext: 'mp4',
+    resolution: '',
+    fps: '',
+    file_size: '(streaming)',
+    remark: 'audio only',
+  },
+  {
+    id: '139',
+    ext: 'm4a',
+    resolution: '',
+    fps: '2',
+    file_size: '',
+    remark: 'audio only',
+  },
+  {
+    id: '140',
+    ext: 'm4a',
+    resolution: '',
+    fps: '2',
+    file_size: '',
+    remark: 'audio only',
+  },
+  {
+    id: '251',
+    ext: 'webm',
+    resolution: '',
+    fps: '2',
+    file_size: '',
+    remark: 'audio only',
+  },
+  {
+    id: '269',
+    ext: 'mp4',
+    resolution: '256x144',
+    fps: '24',
+    file_size: '',
+    remark: 'video only',
+  },
+  {
+    id: '160',
+    ext: 'mp4',
+    resolution: '256x144',
+    fps: '24',
+    file_size: '',
+    remark: 'video only',
+  },
+  {
+    id: '230',
+    ext: 'mp4',
+    resolution: '640x360',
+    fps: '24',
+    file_size: '',
+    remark: 'video only',
+  },
+  {
+    id: '134',
+    ext: 'mp4',
+    resolution: '640x360',
+    fps: '24',
+    file_size: '',
+    remark: 'video only',
+  },
+  {
+    id: '18',
+    ext: 'mp4',
+    resolution: '640x360',
+    fps: '24',
+    file_size: '',
+    remark: '',
+  },
+  {
+    id: '605',
+    ext: 'mp4',
+    resolution: '640x360',
+    fps: '24',
+    file_size: '',
+    remark: 'video only',
+  },
+  {
+    id: '232',
+    ext: 'mp4',
+    resolution: '1280x720',
+    fps: '24',
+    file_size: '',
+    remark: 'video only',
+  },
+  {
+    id: '136',
+    ext: 'mp4',
+    resolution: '1280x720',
+    fps: '24',
+    file_size: '',
+    remark: 'video only',
+  },
+]
+
 let videoPageStyle = Style(/* css */ `
 #videoPage table {
   border-collapse: collapse
@@ -400,6 +506,9 @@ function NewVideoPage(attrs: {
   formats: Format[]
 }) {
   let { video_id, detail, formats } = attrs
+
+  // avoid IP-ban
+  formats = formats.filter(format => format.file_size !== '(streaming)')
 
   return (
     <div id="videoPage">
