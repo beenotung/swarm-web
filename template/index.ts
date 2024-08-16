@@ -64,6 +64,10 @@ export function renderIndexTemplate(
         filter: invert();
         background-color: black;
       }
+      .app {
+        max-width: 120ch;
+        margin: auto;
+      }
     </style>
     <div id="ws_status" hidden role="none">loading...</div>
     <script>

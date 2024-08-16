@@ -11,7 +11,7 @@ import youtubeAPI, {
 } from 'youtube-search-api'
 import { genTsType } from 'gen-ts-type'
 import { getContextSearchParams, Routes, StaticPageRoute } from '../routes.js'
-import { config, title } from '../../config.js'
+import { apiEndpointTitle, config, title } from '../../config.js'
 import { Context, DynamicContext } from '../context.js'
 import { mapArray } from '../components/fragment.js'
 import Style from '../components/style.js'
@@ -32,14 +32,51 @@ import { getWSSession, sessions } from '../session.js'
 import { ServerMessage } from '../../../client/types.js'
 import { nodeToVElementOptimized } from '../jsx/vnode.js'
 
+let searchVideoStyle = Style(/* css */ `
+#home form {
+  width: fit-content;
+}
+#home form hr {
+  border-color: #0005;
+}
+label.field {
+  display: block;
+  margin: 0.25rem 0;
+}
+label.field input {
+  display: block;
+  margin-top: 0.25rem;
+}
+.or-line {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+.or-line hr {
+  height: 0;
+  width: 100%;
+}
+`)
 let searchVideos = (
   <div id="home">
+    {searchVideoStyle}
     <h2>Search Videos</h2>
     <form method="get" action="/search">
-      <label>
-        Keywords <input type="text" name="q" />
-      </label>{' '}
-      <input type="submit" value="Search" />
+      <label class="field">
+        Keywords:
+        <input type="text" name="q" />
+      </label>
+      <div class="or-line">
+        <hr />
+        or
+        <hr />
+      </div>
+      <label class="field">
+        Url:
+        <input type="text" name="url" />
+      </label>
+      <hr />
+      <input type="submit" value="Search" style="margin: 0.5rem 0" />
     </form>
   </div>
 )
@@ -73,6 +110,15 @@ let resolveSearch = async (
   context: DynamicContext,
 ): Promise<StaticPageRoute> => {
   const keyword = getContextSearchParams(context).get('q')
+  const url = getContextSearchParams(context).get('url')
+  if (url) {
+    let id = new URLSearchParams(url.split('?').pop()).get('v') || url
+    return {
+      title: apiEndpointTitle,
+      description: 'Redirect to video page',
+      node: <Redirect href={`/video/${id}`} />,
+    }
+  }
   if (!keyword) {
     return {
       title: title('Search Videos'),
@@ -113,6 +159,7 @@ let searchResultStyle = Style(/* css */ `
   display: flex;
   flex-direction: column;
   width: fit-content;
+  max-width: calc(360px + 1rem)
 }
 #results .video-item {
   border: 1px solid black;

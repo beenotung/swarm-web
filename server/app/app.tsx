@@ -67,10 +67,7 @@ export function App(main: Node): Element {
         {scripts}
         <Stats />
         {topMenu}
-        <fieldset>
-          <legend>Router Demo</legend>
-          {main}
-        </fieldset>
+        <fieldset>{main}</fieldset>
         <Flush />
       </>,
     ],
