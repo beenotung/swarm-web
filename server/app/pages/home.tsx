@@ -639,8 +639,10 @@ function DownloadVideo(attrs: {
   filename: string | undefined
 }) {
   let { video_id, detail, filename } = attrs
+  let url
   if (filename) {
     startDeleteTimer(filename)
+    url = '/downloads/' + encodeURIComponent(filename)
   }
   return (
     <div id="downloadPage">
@@ -655,12 +657,12 @@ function DownloadVideo(attrs: {
         <>
           <p>Video ready: {filename}</p>
           <p>
-            <a href={'/downloads/' + filename} download={filename}>
+            <a href={url} download={filename}>
               Download
             </a>
           </p>
           <p>
-            <a href={'/downloads/' + filename}>View</a>
+            <a href={url}>View</a>
           </p>
         </>
       )}
